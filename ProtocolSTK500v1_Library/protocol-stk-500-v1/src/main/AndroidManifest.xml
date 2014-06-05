@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.bq.robotic.protocolstk500v1library.protocol_stk_500_v1" >
+
+    <application />
+
+</manifest>
