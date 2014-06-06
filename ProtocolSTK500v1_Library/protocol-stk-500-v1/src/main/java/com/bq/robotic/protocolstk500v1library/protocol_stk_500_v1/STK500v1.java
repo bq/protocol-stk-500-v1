@@ -456,18 +456,18 @@ public class STK500v1 {
 				restartReader();
 			}
 			waitForReaderStateActivated();
-			if(!softReset()) {
-				logger.logcat("programUsingOptiboot: Arduino didn't restart!", "w");
-				state = ProtocolState.ERROR_CONNECT;
-				return false;
-			}
-
-			logger.logcat("programUsingOptiboot: Waiting for the arduino to restart", "i");
-			// Wait for the arduino to start up
-			try {
-				Thread.sleep(150);
-			} catch (InterruptedException e) {
-			}
+//			if(!softReset()) {
+//				logger.logcat("programUsingOptiboot: Arduino didn't restart!", "w");
+//				state = ProtocolState.ERROR_CONNECT;
+//				return false;
+//			}
+//
+//			logger.logcat("programUsingOptiboot: Waiting for the arduino to restart", "i");
+//			// Wait for the arduino to start up
+//			try {
+//				Thread.sleep(150);
+//			} catch (InterruptedException e) {
+//			}
 
 			logger.logcat("programUsingOptiboot: Attempting synchronization", "i");
 			//get sync and set parameters

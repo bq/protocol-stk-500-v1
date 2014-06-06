@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -62,39 +61,6 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
         log = new Log(this, ctx);
     }
 
-    /**
-     * Callback for the menu options
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        this.menu = menu;
-        menu.findItem(R.id.disconnect).setEnabled(false);
-        return true;
-    }
-
-
-    /**
-     * When click on connect button of the menu in the action bar, initialize the dialog for searching
-     * the bluetooth devices (paired and new ones). The title views of that dialog can be stylized
-     * as it is shown in this example.
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.connect_scan:
-                requestDeviceConnection();
-                return true;
-
-            case R.id.disconnect:
-                stopBluetoothConnection();
-                return true;
-        }
-
-        return false;
-    }
-
 
     /**
      * Callback for the changes of the connection status
@@ -103,9 +69,8 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
     public void onConnectionStatusUpdate(int connectionState) {
         switch (connectionState) {
             case Droid2InoConstants.STATE_CONNECTED:
+                programBoard();
                 setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-                menu.findItem(R.id.connect_scan).setEnabled(false);
-                menu.findItem(R.id.disconnect).setEnabled(true);
 
                 break;
 
@@ -117,9 +82,6 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
             case Droid2InoConstants.STATE_NONE:
                 setStatus(R.string.title_not_connected);
-                menu.findItem(R.id.connect_scan).setEnabled(true);
-                menu.findItem(R.id.disconnect).setEnabled(false);
-
                 outStream = null;
                 inputStream = null;
 
@@ -184,10 +146,6 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
     //FIXME
     public void onSendClicked(View v) {
 
-        if(!isConnected()) {
-            return;
-        }
-
         if(filePath == null || filePath.equals("")) {
             Toast.makeText(this, "The filepath is null or empty", Toast.LENGTH_SHORT).show();
             return;
@@ -197,6 +155,13 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
             return;
         }
 
+        requestDeviceConnection();
+
+
+    }
+
+
+    private void programBoard() {
         ((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.VISIBLE);
 
         new Thread(new Runnable() {
@@ -353,6 +318,8 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                                         "Try resetting the board just after pressing the send button");
                             }
                             ((ProgressBar) MainActivity.this.findViewById(R.id.progress_bar)).setVisibility(View.GONE);
+
+                            stopBluetoothConnection();
                         }
                     });
                 }
