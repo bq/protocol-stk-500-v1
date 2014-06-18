@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
-import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -32,8 +31,6 @@ import java.io.OutputStream;
 
 public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
-    private Menu menu;
-
     private final int PICKFILE_RESULT_CODE = 1;
     private String filePath;
     private OutputStream outStream = null;
@@ -45,133 +42,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
     // Debugging
     private static final String LOG_TAG = "MainActivity";
 
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-        }
-    };
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        ctx = getBaseContext();
-        log = new Log(this, ctx);
-    }
-
-
-    /**
-     * Callback for the changes of the connection status
-     */
-    @Override
-    public void onConnectionStatusUpdate(int connectionState) {
-        switch (connectionState) {
-            case Droid2InoConstants.STATE_CONNECTED:
-                programBoard();
-                setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
-
-                break;
-
-            case Droid2InoConstants.STATE_CONNECTING:
-                setStatus(R.string.title_connecting);
-                break;
-
-            case Droid2InoConstants.STATE_LISTEN:
-
-            case Droid2InoConstants.STATE_NONE:
-                setStatus(R.string.title_not_connected);
-                outStream = null;
-                inputStream = null;
-
-                break;
-        }
-    }
-
-
-    /**
-     * Put the status of the connection in the action bar
-     * @param resId
-     */
-    private final void setStatus(int resId) {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle(resId);
-    }
-
-
-    /**
-     * Put the status of the connection in the action bar
-     * @param subTitle
-     */
-    private final void setStatus(CharSequence subTitle) {
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setSubtitle(subTitle);
-    }
-
-
-    public void onBrowseClicked(View v) {
-//		Intent intent = new Intent();
-//	      intent.setAction(Intent.ACTION_GET_CONTENT);
-//	      intent.setType("file/*");
-//	      startActivity(intent);
-
-        Intent fileintent = new Intent(Intent.ACTION_GET_CONTENT);
-//        fileintent.setType("gagt/sdf");
-        fileintent.setType("file/*");
-        try {
-            startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
-        } catch (ActivityNotFoundException e) {
-            log.logcat("No activity can handle picking a file. Showing alternatives.", "e");
-        }
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // TODO Fix no activity available
-        if (data == null)
-            return;
-        switch (requestCode) {
-            case PICKFILE_RESULT_CODE:
-                if (resultCode == RESULT_OK) {
-                    filePath = data.getData().getPath();
-                    //FilePath is your file as a string
-                    ((TextView) findViewById(R.id.file_to_send)).setText(filePath);
-
-                    ((Button) findViewById(R.id.send_button)).setEnabled(true);
-                }
-        }
-    }
-
-
-    //FIXME
-    public void onSendClicked(View v) {
-
-        if(filePath == null || filePath.equals("")) {
-            Toast.makeText(this, "The filepath is null or empty", Toast.LENGTH_SHORT).show();
-            return;
-
-        } else if (!filePath.endsWith(".hex")) {
-            Toast.makeText(this, "The file is not valid. It must be a .hex file", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        requestDeviceConnection();
-
-
-    }
-
-
-    private void programBoard() {
-        ((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.VISIBLE);
-
-        new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                BufferedReader br = null;
-                StringBuilder hexData = new StringBuilder();
-
-//                String hexData = ":100000000C9461000C947E000C947E000C947E0095" +
+//    private static final String hexData = ":100000000C9461000C947E000C947E000C947E0095" +
 //                        ":100010000C947E000C947E000C947E000C947E0068" +
 //                        ":100020000C947E000C947E000C947E000C947E0058" +
 //                        ":100030000C947E000C947E000C947E000C947E0048" +
@@ -244,6 +115,150 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 //                        ":02045A000D0093" +
 //                        ":00000001FF";
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    };
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        ctx = getBaseContext();
+        log = new Log(this, ctx);
+    }
+
+
+    /**
+     * Callback for the changes of the connection status
+     */
+    @Override
+    public void onConnectionStatusUpdate(int connectionState) {
+        switch (connectionState) {
+            case Droid2InoConstants.STATE_CONNECTED:
+                programBoard();
+                setStatus(getString(R.string.title_connected_to, mConnectedDeviceName));
+
+                break;
+
+            case Droid2InoConstants.STATE_CONNECTING:
+                setStatus(R.string.title_connecting);
+                break;
+
+            case Droid2InoConstants.STATE_LISTEN:
+
+            case Droid2InoConstants.STATE_NONE:
+                setStatus(R.string.title_not_connected);
+                outStream = null;
+                inputStream = null;
+
+                break;
+        }
+    }
+
+
+    /**
+     * Put the status of the connection in the action bar
+     * @param resId text id for the status
+     */
+    private void setStatus(int resId) {
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setSubtitle(resId);
+    }
+
+
+    /**
+     * Put the status of the connection in the action bar
+     * @param subTitle text for the status
+     */
+    private void setStatus(CharSequence subTitle) {
+        final ActionBar actionBar = getSupportActionBar();
+        actionBar.setSubtitle(subTitle);
+    }
+
+
+    /**
+     * Method to search for a file in the mobile device
+     * @param v view clicked
+     */
+    public void onBrowseClicked(View v) {
+//		Intent intent = new Intent();
+//	      intent.setAction(Intent.ACTION_GET_CONTENT);
+//	      intent.setType("file/*");
+//	      startActivity(intent);
+
+        Intent fileintent = new Intent(Intent.ACTION_GET_CONTENT);
+//        fileintent.setType("gagt/sdf");
+        fileintent.setType("file/*");
+        try {
+            startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
+        } catch (ActivityNotFoundException e) {
+            log.logcat("No activity can handle picking a file. Showing alternatives.", "e");
+            log.makeToast("No app can handle picking a file. Install one before using this app");
+        }
+    }
+
+
+    /**
+     * Result for the picking file app
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // TODO Fix no activity available
+        if (data == null)
+            return;
+        switch (requestCode) {
+            case PICKFILE_RESULT_CODE:
+                if (resultCode == RESULT_OK) {
+                    filePath = data.getData().getPath();
+                    //FilePath is your file as a string
+                    ((TextView) findViewById(R.id.file_to_send)).setText(filePath);
+
+                    ((Button) findViewById(R.id.send_button)).setEnabled(true);
+                }
+        }
+    }
+
+
+    /**
+     * Pressed the button for sending the program to the microcontroller board in order to install
+     * the program in it
+     * @param v view clicked
+     */
+    public void onSendClicked(View v) {
+
+        if(filePath == null || filePath.equals("")) {
+            Toast.makeText(this, "The filepath is null or empty", Toast.LENGTH_SHORT).show();
+            return;
+
+        } else if (!filePath.endsWith(".hex")) {
+            Toast.makeText(this, "The file is not valid. It must be a .hex file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Connect to the micro board bluetooth module
+        requestDeviceConnection();
+    }
+
+
+    /**
+     * Program the microcontroller board
+     */
+    private void programBoard() {
+        ((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.VISIBLE);
+
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                BufferedReader br = null;
+                StringBuilder hexData = new StringBuilder();
+
                 try {
 
                     br = new BufferedReader(
@@ -258,11 +273,9 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
 
                 } catch (FileNotFoundException e) {
-                    // TODO Auto-generated catch block
                     log.logcat("Exception in onSendClicked: " + e, "e");
 //                Toast.makeText(this, "FileNotFoundException", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
-                    // TODO Auto-generated catch block
                     log.logcat("Exception in onSendClicked: " + e, "e");
 //                Toast.makeText(this, "IOException", Toast.LENGTH_LONG).show();
                 } finally {
@@ -275,8 +288,10 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                     }
                 }
 
-                if(hexData != null) {
+                if(hexData.length() > 0) {
 
+                    // The hexadecimal value for the ':' (all the Arduino codes starts with this
+                    // character) character is 3A
                     String hexDataProcessed = hexData.toString().replace(":", "3A");
 //                    String hexDataProcessed = hexData.replace(":", "3A");
 
@@ -295,7 +310,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                     try {
                         STK500v1 p = new STK500v1(outStream, inputStream, log, binaryFile);
 
-                        // Upload
+                        // Upload (256 is the recommended value in the library)
                         result = p.programUsingOptiboot(false, 256);
                     } catch (Exception e) {
                         log.logcat("Exception in programming: " + e, "e");
@@ -306,6 +321,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                     log.logcat("initializeExecuteButton: Protocol code stopped", "d");
                     handler.sendEmptyMessage(0);
 
+                    // Update the UI from the UI thread
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
