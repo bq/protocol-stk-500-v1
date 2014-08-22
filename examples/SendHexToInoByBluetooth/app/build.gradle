@@ -1,8 +1,8 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 20
+    buildToolsVersion "20"
 
     defaultConfig {
         minSdkVersion 8
@@ -28,6 +28,6 @@ dependencies {
         transitive = true
     }
 
-    compile('com.bq.robotic:protocol-stk-500-v1:1.0@jar')
+    compile('com.bq.robotic:protocol-stk-500-v1:1.+@jar')
 
 }
