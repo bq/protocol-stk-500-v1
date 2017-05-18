@@ -1,15 +1,20 @@
 package com.bq.robotic.sendhextoinobybluetooth.app;
 
+import android.Manifest;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.OpenableColumns;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,25 +24,36 @@ import com.bq.robotic.protocolstk500v1library.protocol_stk_500_v1.Logger;
 import com.bq.robotic.protocolstk500v1library.protocol_stk_500_v1.STK500v1;
 
 import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.List;
 
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
-
-
-public class MainActivity extends BaseBluetoothSendOnlyActivity {
+public class MainActivity extends BaseBluetoothSendOnlyActivity
+   implements EasyPermissions.PermissionCallbacks {
 
     private final int PICKFILE_RESULT_CODE = 1;
-    private String filePath;
+    private String fileName;
+    private Uri fileUri;
     private OutputStream outStream = null;
     private InputStream inputStream = null;
 
-    Context ctx;
-    Logger log;
+    private static final String[] FILE_PROJECTION={
+       OpenableColumns.DISPLAY_NAME,
+       OpenableColumns.SIZE
+    };
+
+    private Context ctx;
+    private Logger log;
+
+   // Permissions
+   // Location permission is now needed in order to scan for near bluetooth devices
+   private static final int RC_LOCATION_PERM = 124;
 
     // Debugging
     private static final String LOG_TAG = "MainActivity";
@@ -129,10 +145,11 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
         ctx = getBaseContext();
         log = new Log(this, ctx);
+
+       requestPermissions();
     }
 
-
-    /**
+   /**
      * Callback for the changes of the connection status
      */
     @Override
@@ -185,16 +202,18 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
      * @param v view clicked
      */
     public void onBrowseClicked(View v) {
-//		Intent intent = new Intent();
-//	      intent.setAction(Intent.ACTION_GET_CONTENT);
-//	      intent.setType("file/*");
-//	      startActivity(intent);
+        Intent fileIntent;
+        if (Build.VERSION.SDK_INT >= 19) {
+            fileIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        } else {
+            fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            fileIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        }
 
-        Intent fileintent = new Intent(Intent.ACTION_GET_CONTENT);
-//        fileintent.setType("gagt/sdf");
-        fileintent.setType("file/*");
+        fileIntent.setType("*/*");
         try {
-            startActivityForResult(fileintent, PICKFILE_RESULT_CODE);
+            startActivityForResult(fileIntent, PICKFILE_RESULT_CODE);
         } catch (ActivityNotFoundException e) {
             log.logcat("No activity can handle picking a file. Showing alternatives.", "e");
             log.makeToast("No app can handle picking a file. Install one before using this app");
@@ -215,11 +234,30 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
         switch (requestCode) {
             case PICKFILE_RESULT_CODE:
                 if (resultCode == RESULT_OK) {
-                    filePath = data.getData().getPath();
-                    //FilePath is your file as a string
-                    ((TextView) findViewById(R.id.file_to_send)).setText(filePath);
+                    fileUri = data.getData();
 
-                    ((Button) findViewById(R.id.send_button)).setEnabled(true);
+                    //FilePath is your file as a string
+                    Cursor cursor = null;
+                    try {
+                        cursor = getContentResolver().query(fileUri,
+                           FILE_PROJECTION, null, null, null);
+                        if (cursor != null && cursor.moveToFirst()) {
+                            int fileNameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                            fileName = cursor.getString(fileNameIndex);
+                            log.logcat("File name is " + fileName, "d");
+                        }
+
+                    } catch (Exception e) {
+                        if (cursor != null) {
+                            cursor.close();
+                        }
+                        fileName = getString(R.string.filename_error);
+                        log.logcat("Error trying to obtain " +
+                           "the file name: " + e, "e");
+                    }
+
+                    ((TextView) findViewById(R.id.file_to_send)).setText(fileName);
+                    findViewById(R.id.send_button).setEnabled(true);
                 }
         }
     }
@@ -232,11 +270,11 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
      */
     public void onSendClicked(View v) {
 
-        if(filePath == null || filePath.equals("")) {
+        if(fileName == null || fileName.equals("")) {
             Toast.makeText(this, "The filepath is null or empty", Toast.LENGTH_SHORT).show();
             return;
 
-        } else if (!filePath.endsWith(".hex")) {
+        } else if (!fileName.endsWith(".hex")) {
             Toast.makeText(this, "The file is not valid. It must be a .hex file", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -250,7 +288,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
      * Program the microcontroller board
      */
     private void programBoard() {
-        ((ProgressBar) findViewById(R.id.progress_bar)).setVisibility(View.VISIBLE);
+        findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
 
         new Thread(new Runnable() {
 
@@ -262,8 +300,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                 try {
 
                     br = new BufferedReader(
-                            new InputStreamReader(
-                                    new FileInputStream(filePath)));
+                       new InputStreamReader(getContentResolver().openInputStream(fileUri)));
 
                     String line;
 
@@ -274,10 +311,10 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
                 } catch (FileNotFoundException e) {
                     log.logcat("Exception in onSendClicked: " + e, "e");
-//                Toast.makeText(this, "FileNotFoundException", Toast.LENGTH_LONG).show();
                 } catch (IOException e) {
                     log.logcat("Exception in onSendClicked: " + e, "e");
-//                Toast.makeText(this, "IOException", Toast.LENGTH_LONG).show();
+                } catch (Exception e) {
+                    log.logcat("Exception in onSendClicked: " + e, "e");
                 } finally {
                     if (br != null) {
                         try {
@@ -333,7 +370,7 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
                                 log.makeToast("There was an error. The board wasn't programmed. " +
                                         "Try resetting the board just after pressing the send button");
                             }
-                            ((ProgressBar) MainActivity.this.findViewById(R.id.progress_bar)).setVisibility(View.GONE);
+                            MainActivity.this.findViewById(R.id.progress_bar).setVisibility(View.GONE);
 
                             stopBluetoothConnection();
                         }
@@ -345,8 +382,45 @@ public class MainActivity extends BaseBluetoothSendOnlyActivity {
 
     }
 
+   public void printToConsole(String msg){}
 
-    public void printToConsole(String msg){}
+    /************************************ PERMISSIONS **********************************************/
+    @AfterPermissionGranted(RC_LOCATION_PERM)
+    private void requestPermissions() {
+       String[] perms = {Manifest.permission.ACCESS_COARSE_LOCATION};
+
+       // If permission is already granted don't do anything else here
+       if (EasyPermissions.hasPermissions(this, perms)) return;
+
+       EasyPermissions.requestPermissions(this, getString(R.string.permission_location),
+          RC_LOCATION_PERM, perms);
+    }
+
+   @Override public void onPermissionsGranted(int requestCode, List<String> perms) {
+      log.logcat("Location permission granted", "d");
+   }
+
+   @Override
+   public void onPermissionsDenied(int requestCode, List<String> perms) {
+      log.logcat("Location permission denied", "d");
+
+      // (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
+      if (!EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+         new AlertDialog.Builder(this)
+            .setMessage(getString(R.string.rationale_location))
+            .setPositiveButton(android.R.string.ok,  null)
+            .create()
+            .show();
+      }
+   }
+
+   @Override
+   public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+      super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+      // Forward results to EasyPermissions
+      EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+   }
 
 }
 

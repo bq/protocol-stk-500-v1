@@ -8,7 +8,7 @@ It allows you to:
 
 * Program the microcontroller board using a Bluetooth connection. 
 
-* Search in your mobile device for a hex file of the compiled program with which you want to program the microcontroller board.
+* Search in your mobile device for a hex file of the compiled program with which you want to program the microcontroller board. There is ``led.hex file`` in the ``arduino_hex_example`` folder that you can put on your mobile device if you want to test the app. It will make blink a led connected to the pin 13.
   
 If you have any questions you can contact us through the `DIY forum <http://diy.bq.com/forums/forum/forum/>`_  or sending an email to diy@bq.com.
 
@@ -26,7 +26,7 @@ Installation
 
 #. SendHexToInoByBluetooth depends on the droid2ino library. Clone the repository::
 
-    git clone https://github.com/bq/drag-drop-grid.git
+    git clone https://github.com/bq/droid2ino.git
 
 #. Install the droid2ino library in your local repository::
   
@@ -40,7 +40,7 @@ Installation
 #. Install the ProtocolSTK500v1_Library in your local repository::
   
     cd protocol-stk-500-v1/ProtocolSTK500v1_Library
-    gradle publishToMavenLocal
+    gradle install
 
 #. In Android Studio go to ``File`` > ``Open`` and select the ``SendHexToInoByBluetooth`` from the ``Example`` folder of the cloned repository.
 
@@ -57,7 +57,7 @@ Requirements
     sudo apt-get update
     sudo apt-get install maven
 
-- `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
+- `Gradle <http://www.gradle.org/downloads>`_ version 3.3
 
 
 Limitations
@@ -69,4 +69,4 @@ The bootloader of the microcontroller board must be listening to the Serial port
 License
 =======
 
-ExampleDragDropGrid is distributed in terms of GPL license. See http://www.gnu.org/licenses/ for more details.
+SendHexToInoByBluetooth is distributed in terms of GPL license. See http://www.gnu.org/licenses/ for more details.

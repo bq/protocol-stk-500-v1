@@ -27,7 +27,7 @@ Usage
 #. Install in your local repository::
   
     cd protocol-stk-500-v1/ProtocolSTK500v1_Library
-    gradle publishToMavenLocal
+    gradle install
 
 #. Add your local repository to your root project's build.gradle file::
 
@@ -38,7 +38,7 @@ Usage
 #. Add the protocol-stk-500-v1 dependency to your app's build.gradle file::
 
     dependencies {
-        compile('com.bq.robotic:protocol-stk-500-v1:1.0@jar')
+        compile('com.bq.robotic:protocol-stk-500-v1:3.0@aar')
     }
 
 
@@ -57,10 +57,10 @@ Installation
 
     git clone https://github.com/bq/protocol-stk-500-v1.git
 
-#. Install the drag-drop-grid library in your local repository::
+#. Install the protocol-stk-500-v1 library in your local repository::
   
     cd protocol-stk-500-v1/ProtocolSTK500v1_Library
-    gradle publishToMavenLocal
+    gradle install
 
 #. In Android Studio go to ``File`` > ``Open`` and select the ProtocolSTK500v1_Library gradle project inside the previous cloned project (that with the green robot icon, the ProtocolSTK500v1_Library folder not the repository one with the example project inside too).
 
@@ -79,7 +79,7 @@ Requirements
     sudo apt-get update
     sudo apt-get install maven
 
-- `Gradle <http://www.gradle.org/downloads>`_ recommended version 1.10
+- `Gradle <http://www.gradle.org/downloads>`_ version 3.3
 
 - Arduino board
 
@@ -93,4 +93,4 @@ The bootloader of the microcontroller board must be listening to the Serial port
 License
 =======
 
-drag-drop-grid is distributed in terms of LGPL license. See http://www.gnu.org/licenses/lgpl.html for more details.
+protocol-stk-500-v1 is distributed in terms of LGPL license. See http://www.gnu.org/licenses/lgpl.html for more details.

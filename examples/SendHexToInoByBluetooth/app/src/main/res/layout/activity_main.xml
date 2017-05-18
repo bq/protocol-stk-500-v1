@@ -1,50 +1,56 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    android:layout_width="match_parent"
+    tools:context=".MainActivity">
 
-
-    <Button
-        android:id="@+id/browse_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:text="@string/browse"
-        android:layout_alignParentLeft="true"
-        android:onClick="onBrowseClicked" />
-
-    <Button
-        android:id="@+id/send_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:text="@string/send"
-        android:layout_alignParentRight="true"
-        android:onClick="onSendClicked"
-        android:enabled="false" />
-
-    <TextView
-        android:id="@+id/file_to_send"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Archivo a enviar"
-        android:layout_above="@id/browse_button"
-        android:layout_marginBottom="15dp" />
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        tools:context=".MainActivity">
+
+        <Button
+            android:id="@+id/browse_button"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:onClick="onBrowseClicked"
+            android:text="@string/browse" />
+
+        <Button
+            android:enabled="false"
+            android:id="@+id/send_button"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:onClick="onSendClicked"
+            android:text="@string/send" />
+
+        <TextView
+            android:hint="@string/file_to_send_hint"
+            android:id="@+id/file_to_send"
+            android:layout_above="@id/browse_button"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="5dp"
+            android:layout_width="match_parent" />
+
+    </RelativeLayout>
 
     <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"
-        android:layout_centerInParent="true"
         style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:background="@drawable/abc_menu_dropdown_panel_holo_dark"
-        android:padding="10dp"
+        android:id="@+id/progress_bar"
+        android:indeterminate="true"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_marginTop="-5dp"
         android:visibility="gone" />
 
-</RelativeLayout>
+</FrameLayout>

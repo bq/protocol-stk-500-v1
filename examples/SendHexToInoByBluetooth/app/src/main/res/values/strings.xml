@@ -4,18 +4,15 @@
     <string name="app_name">SendHexToInoByBluetooth</string>
     <string name="browse">Browse</string>
     <string name="send">Send</string>
-
+    <string name="file_to_send_hint">File to send</string>
+    <string name="filename_error">Error trying to obtain the file</string>
 
     <!-- BluetoothChat -->
-    <!--<string name="send">Send</string>-->
-    <string name="not_connected">You are not connected to a device</string>
-    <string name="bt_not_enabled">Bluetooth was not enabled. You need to enable it to connect with a device.</string>
     <string name="title_connecting">Connecting&#8230;</string>
     <string name="title_connected_to">Connected to <xliff:g id="device_name">%1$s</xliff:g></string>
     <string name="title_not_connected">Not connected</string>
 
     <!-- DeviceListActivity -->
-    <string name="scanning">Scanning for devices&#8230;</string>
     <string name="select_device">Select a device</string>
     <string name="none_paired">No devices have been paired</string>
     <string name="none_found">No devices found</string>
@@ -23,17 +20,11 @@
     <string name="title_other_devices">Other Available Devices</string>
     <string name="button_scan">Scan for devices</string>
 
-    <!-- Options Menu -->
-    <string name="connect">Connect</string>
-    <string name="disconnect">Disconnect</string>
-    <string name="discoverable">Make discoverable</string>
-
-    <!-- BaseBluetoohConnection -->
-    <string name="connected_to">"Connected to "</string>
-
-    <!-- Errors -->
-    <string name="bluetooth_not_available">Bluetooth is not available</string>
-    <string name="connecting_bluetooth_error">Unable to connect device</string>
-    <string name="connection_lost_error">Device connection was lost</string>
+    <!--Permissions-->
+    <string name="permission_required">Permission is needed</string>
+    <string name="permission_location">Location permission is needed to search for the bluetooth devices
+        near you to connect to them</string>
+    <string name="rationale_location">Location permission is needed to search for the bluetooth devices
+        near you to connect to them. You will only be able to connect to paired devices</string>
 
 </resources>
