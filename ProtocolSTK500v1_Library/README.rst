@@ -38,7 +38,7 @@ Usage
 #. Add the protocol-stk-500-v1 dependency to your app's build.gradle file::
 
     dependencies {
-        compile('com.bq.robotic:protocol-stk-500-v1:1.0@jar')
+        compile('com.bq.robotic:protocol-stk-500-v1:3.0@jar')
     }
 
 
